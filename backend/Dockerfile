@@ -1,13 +1,19 @@
-FROM node:14.16.0-alpine3.13
-
-RUN addgroup app && adduser -S -G app app
-USER app
+FROM node:18-alpine
 
 WORKDIR /app
+
 COPY package*.json ./
 RUN npm install
-COPY . . 
 
-EXPOSE 3001 
+COPY . .
 
-CMD ["npm", "start"]
+RUN apk add --no-cache netcat-openbsd && \
+    chmod +x docker-entrypoint.sh wait-for.sh && \
+    addgroup -S appgroup && adduser -S appuser -G appgroup && \
+    chown -R appuser:appgroup /app
+
+USER appuser
+
+EXPOSE 3001
+
+CMD ["sh", "./docker-entrypoint.sh"]

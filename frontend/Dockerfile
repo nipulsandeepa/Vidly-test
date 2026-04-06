@@ -1,13 +1,17 @@
-FROM node:14.16.0-alpine3.13
-
-RUN addgroup app && adduser -S -G app app
-USER app
+FROM node:18-alpine
 
 WORKDIR /app
+
 COPY package*.json ./
 RUN npm install
+
 COPY . .
 
-EXPOSE 3000 
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup && \
+    chown -R appuser:appgroup /app
+
+USER appuser
+
+EXPOSE 3000
 
 CMD ["npm", "start"]
